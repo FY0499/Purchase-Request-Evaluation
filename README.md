@@ -2,6 +2,8 @@
 
 I built this n8n workflow to evaluate employee purchase requests using AI, review the reason and estimated price, and identify the approval level required for each request.
 
+<img width="726" height="247" alt="image" src="https://github.com/user-attachments/assets/d141855a-a3c1-464e-90ab-01980b8dbe36" />
+
 ## How it works
 
 1. An employee submits their name, email, requested item or service, estimated price, and reason through a form.
