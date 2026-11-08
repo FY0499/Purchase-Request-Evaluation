@@ -1,0 +1,384 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "طلب شراء جديد",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "اسم الموظف",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "بريد الموظف",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "الجهاز/الخدمة المطلوبة",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "السعر التقريبي",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "المبرر",
+              "fieldType": "textarea",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "02e93ea3-1c17-4154-9482-93832f3d0ed5",
+      "name": "On form submission",
+      "webhookId": "92445857-93ef-46cb-881a-343023f6914e"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=أنت مسؤول مشتريات. قيّم طلب الشراء هذا من ناحية: منطقية المبرر، معقولية السعر، والأولوية. حدد أيضاً من يجب أن يوافق (مدير مباشر فقط أو يحتاج موافقة المدير المالي بسبب السعر). أعد النتيجة كـ JSON فقط: {\"category\": \"...\", \"priority\": \"منخفضة/متوسطة/عالية\", \"price_reasonable\": true/false, \"approval_level\": \"مدير مباشر/مدير مالي\", \"reasoning\": \"...\"}\n\nالمطلوب: {{ $json['الجهاز/الخدمة المطلوبة'] }}\nالسعر: {{ $json['السعر التقريبي'] }}\nالمبرر: {{ $json['المبرر'] }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "917d4531-8f72-4c41-8e4e-a3a564d0b308",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemma-4-31b-it",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        240
+      ],
+      "id": "493b0e33-97cc-4e6a-bb02-61cad32676fe",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "g38xyssK5TRcl82w",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output;\nconst cleaned = raw.replace(/```json|```/g, '').trim();\nconst parsed = JSON.parse(cleaned);\nreturn [{ json: { ...parsed, employeeName:$('On form submission').first().json['اسم الموظف'] , item:$('On form submission').first().json['الجهاز/الخدمة المطلوبة'], price: $('On form submission').first().json['السعر التقريبي'] } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        0
+      ],
+      "id": "7796d9d4-6b75-4f5c-971d-6f97a4842b4b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1y0_Hg4gwlhnGZVvXjxM2_OMBDlY7KbOeGCyIG4-b3nI",
+          "mode": "list",
+          "cachedResultName": "Purchase Requests",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y0_Hg4gwlhnGZVvXjxM2_OMBDlY7KbOeGCyIG4-b3nI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "الورقة1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y0_Hg4gwlhnGZVvXjxM2_OMBDlY7KbOeGCyIG4-b3nI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "employee": "={{ $json.employeeName }}",
+            "item": "={{ $json.item }}",
+            "price": "={{ $json.price }}",
+            "priority": "={{ $json.priority }}",
+            "approvalLevel": "={{ $json.approval_level }}",
+            "status": "بانتظار الموافقة"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "employee",
+              "displayName": "employee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "item",
+              "displayName": "item",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approvalLevel",
+              "displayName": "approvalLevel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        800,
+        0
+      ],
+      "id": "65134f46-1b5f-40fa-944b-65f8ec12d911",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5n1ZTwrHvTy8E86N",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "419455a8-9e9a-4617-9b5d-730d6c289df9",
+              "leftValue": "={{ $json.approvalLevel }}",
+              "rightValue": "مدير مالي",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "407ddea1-77df-4861-a538-0f4dbf602a2e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "fhm156@hotmail.com",
+        "subject": "=💰 طلب شراء يحتاج موافقتك  {{ $json.item }}",
+        "message": "=الموظف:{{ $json.employee }} الطلب: {{ $json.item }} السعر: {{ $json.price }} الأولوية: {{ $json.priority }} تقييم AI:{{ $('Code in JavaScript').item.json.reasoning }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        -96
+      ],
+      "id": "71e38ea0-aee3-4ad5-adfd-1b3123f05c38",
+      "name": "Send a message",
+      "webhookId": "c73b40cd-b52b-4c87-835b-60c9851d19a7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JDWqPw08fOqLMwmh",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "fhm156@hotmail.com",
+        "subject": "=📋 طلب شراء يحتاج موافقتك {{ $('Append row in sheet').item.json.item }}",
+        "message": "=الموظف: {{ $json.employee }} الطلب: {{ $json.item }} السعر: {{ $json.price }} الأولوية: {{ $json.priority }} تقييم AI: {{ $('Code in JavaScript').item.json.reasoning }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        96
+      ],
+      "id": "462390be-cf4c-4359-93f9-3a691f2c22fb",
+      "name": "Send a message1",
+      "webhookId": "5b81fe69-1c64-4a97-a86b-79518132773a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JDWqPw08fOqLMwmh",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "اسم الموظف": "أحمد محمد",
+          "بريد الموظف": "ahmad@test.com",
+          "الجهاز/الخدمة المطلوبة": "لابتوب Dell للأعمال",
+          "السعر التقريبي": 1200,
+          "المبرر": "أحتاج الجهاز لتشغيل برامج تحليل البيانات وتطوير مشاريع الذكاء الاصطناعي، والجهاز الحالي بطيء ولا يتحمل البرامج المطلوبة.",
+          "submittedAt": "2026-09-10T00:16:28.469+03:00",
+          "formMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4cb78cdc-0d0f-4d9c-81db-e13758cbb93c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a5a684b75324e6d2c88eba78c40965ea385652d197518547fda9971ebd20d242"
+  },
+  "nodeGroups": [],
+  "id": "hUFT8COakOaSJH6f",
+  "tags": []
+}
