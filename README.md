@@ -1,31 +1,27 @@
 # Purchase Request Evaluation
 
-An n8n workflow that receives employee purchase requests and uses AI to assess the justification, price reasonableness, priority, and required approval level.
+I built this n8n workflow to evaluate employee purchase requests using AI, review the reason and estimated price, and identify the approval level required for each request.
 
 ## How it works
 
-1. An employee submits the requested item or service, estimated price, and reason through a form.
-2. A Gemini-powered AI agent assesses the request and returns a category, priority, price assessment, and recommended approval level.
-3. JavaScript parses and structures the AI result.
-4. The request is recorded in Google Sheets with a pending-approval status.
-5. The workflow sends an email notification based on the approval path.
+1. An employee submits their name, email, requested item or service, estimated price, and reason through a form.
+2. The AI agent evaluates the request based on the justification, price reasonableness, and priority.
+3. The AI also identifies whether the request requires approval from a direct manager or the financial manager.
+4. JavaScript processes the result and the request is saved to Google Sheets with a Pending Approval status.
+5. The workflow sends an email notification according to the approval path.
+
+## Main features
+
+- Employee purchase request form.
+- AI assessment of the request and price.
+- Priority classification.
+- Recommended approval level.
+- Google Sheets request tracking and email notifications.
 
 ## Technologies
 
-- n8n
-- Google Gemini / Gemma
-- Google Sheets
-- Gmail
-- JavaScript
-- n8n Forms
+n8n, Google Gemini, Google Sheets, Gmail, JavaScript, AI Agent, and n8n Forms.
 
 ## Setup
 
-1. Import workflow.json into n8n.
-2. Configure Gemini, Google Sheets, and Gmail credentials.
-3. Connect your purchase requests sheet and set the approver email address.
-4. Review the approval routing and test with sample requests before using it.
-
-## Notes
-
-This repository contains the exported n8n workflow. Configure your own credentials and integrations in n8n before running it.
+Import [workflow.json](./workflow.json) into n8n, configure your Gemini, Google Sheets, and Gmail credentials, then connect your purchase request sheet and review the approver email address before testing.
